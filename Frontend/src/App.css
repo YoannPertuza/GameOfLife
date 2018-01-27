@@ -1,0 +1,35 @@
+.App{
+  background-color: #DCDCDC;
+}
+
+.dead-cell {
+  border: 1px solid black;
+  display: inline-block;
+  float: left;
+  width: 20px;
+  height: 20px;
+}
+
+.dead-cell:hover
+{
+  background-color: grey;
+}
+
+.alive-cell {
+  border: 1px solid black;
+  display: inline-block;
+  background-color: black;
+  float: left;
+  width: 20px;
+  height: 20px;
+}
+
+.row {
+  width: auto;
+  height: 22px;
+}
+
+.end-of-line {
+  display: block;
+  float:  none;
+}
