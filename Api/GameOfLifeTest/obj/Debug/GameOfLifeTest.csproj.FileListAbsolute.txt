@@ -1,7 +1,0 @@
-C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeTest\bin\Debug\GameOfLifeTest.dll
-C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeTest\bin\Debug\GameOfLifeTest.pdb
-C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeTest\bin\Debug\GameOfLife.dll
-C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeTest\bin\Debug\GameOfLife.pdb
-C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeTest\obj\Debug\GameOfLifeTest.csprojResolveAssemblyReference.cache
-C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeTest\obj\Debug\GameOfLifeTest.dll
-C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeTest\obj\Debug\GameOfLifeTest.pdb
