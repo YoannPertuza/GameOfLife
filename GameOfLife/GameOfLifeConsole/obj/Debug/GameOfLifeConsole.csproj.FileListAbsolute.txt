@@ -1,0 +1,8 @@
+C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeConsole\bin\Debug\GameOfLifeConsole.exe.config
+C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeConsole\bin\Debug\GameOfLifeConsole.exe
+C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeConsole\bin\Debug\GameOfLifeConsole.pdb
+C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeConsole\obj\Debug\GameOfLifeConsole.exe
+C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeConsole\obj\Debug\GameOfLifeConsole.pdb
+C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeConsole\bin\Debug\GameOfLife.dll
+C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeConsole\bin\Debug\GameOfLife.pdb
+C:\Users\PC\Documents\Visual Studio 2013\Projects\GameOfLife\GameOfLifeConsole\obj\Debug\GameOfLifeConsole.csprojResolveAssemblyReference.cache
