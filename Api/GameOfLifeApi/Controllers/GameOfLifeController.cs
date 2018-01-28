@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.IO;
 using System.Web.Hosting;
+using System.Security.AccessControl;
 
 
 namespace GameOfLifeApi.Controllers
@@ -39,16 +40,13 @@ namespace GameOfLifeApi.Controllers
         }
 
         [HttpPost]
-        public async Task<string> UploadFigure()
+        public string ReadFigure()
         {
-            var uploadPath = HostingEnvironment.MapPath("/") + @"/Uploads";
-            Directory.CreateDirectory(uploadPath);
-            var provider = new MultipartFormDataStreamProvider(uploadPath);
-            await Request.Content.ReadAsMultipartAsync(provider);
+            var files = HttpContext.Current.Request.Files;
 
-            var file = provider.FileData[0];
+            var content = new StreamReader(files[0].InputStream).ReadToEnd();
 
-            return File.ReadAllText(file.LocalFileName);          
+            return content;
         }      
     }
 

@@ -67,11 +67,12 @@ class App extends Component {
     var state = this;
     var formData = new FormData();
     formData.append("file", this.fileInput.files[0]);
-    Axios.post('http://gameoflifeapi-dev.us-west-2.elasticbeanstalk.com/api/gameoflife/uploadfigure', formData, {
+    Axios.post('http://localhost:50047/api/gameoflife/readfigure', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
     }).then(function (response) {
+      console.log(response.data);
       state.setState({ livingCells : JSON.parse(response.data)});
     });;
   }
