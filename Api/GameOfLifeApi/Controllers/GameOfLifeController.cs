@@ -40,6 +40,50 @@ namespace GameOfLifeApi.Controllers
         }
 
         [HttpPost]
+        public UntilRound UntilRound(UntilRound request)
+        {
+            var nextRoundGame =
+                new LastRound(
+                    request.currentRound,
+                    request.round, 
+                    request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
+                )              
+                .NextRound();
+
+            return
+                new UntilRound()
+                {
+                    livingCells = nextRoundGame.LivingCells().Select(coord => new LivingCell() { coordX = coord.CoordX(), coordY = coord.CoordY() }).ToArray(),
+                    round = nextRoundGame.CurrentRound()
+                };
+        }
+
+        [HttpPost]
+        public NextRound[] HistorizeGames(UntilRound request)
+        {
+            var historicalGames =
+                new LastRound(
+                    request.currentRound,
+                    request.round,
+                    request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
+                )
+                .NextRound()
+                .History();
+
+            return
+                historicalGames.Select(
+                game => 
+                    new NextRound() 
+                    { 
+                        round = game.CurrentRound(), 
+                        livingCells = game.LivingCells().Select(coord => new LivingCell() { coordX = coord.CoordX(), coordY = coord.CoordY() }).ToArray() 
+                    }
+                ).ToArray();
+        }
+
+
+
+        [HttpPost]
         public string ReadFigure()
         {
             var files = HttpContext.Current.Request.Files;
@@ -61,4 +105,13 @@ namespace GameOfLifeApi.Controllers
         public int round { get; set; }
         public LivingCell[] livingCells { get; set; }
     }
+
+    public class UntilRound
+    {
+        public int currentRound { get; set; }
+        public int round { get; set; }
+        public LivingCell[] livingCells { get; set; }
+    }
+
+
 }

@@ -1,8 +1,6 @@
-.App{
-  background-color: #DCDCDC;
-}
 
 .dead-cell {
+  background-color: #DCDCDC;
   border: 1px solid black;
   display: inline-block;
   float: left;
@@ -28,6 +26,7 @@
   width: auto;
   height: 22px;
 }
+
 
 .end-of-line {
   display: block;
