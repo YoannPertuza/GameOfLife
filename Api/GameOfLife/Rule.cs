@@ -8,7 +8,7 @@ namespace GameOfLife
 {
     public interface Rule
     {
-        bool IsAlive(IEnumerable<Cell> boardCells);
+        bool IsAlive(BoardCells boardCells);
     }
 
     public class MetaRule : Rule
@@ -24,7 +24,7 @@ namespace GameOfLife
         private Rule becomeAlive;
         private Rule stayAlive;
 
-        public bool IsAlive(IEnumerable<Cell> boardCells)
+        public bool IsAlive(BoardCells boardCells)
         {
             return this.isCellAlive ? this.stayAlive.IsAlive(boardCells) : this.becomeAlive.IsAlive(boardCells);
         }
@@ -39,7 +39,7 @@ namespace GameOfLife
 
         private LivingCellss livingCells;
 
-        public bool IsAlive(IEnumerable<Cell> boardCells)
+        public bool IsAlive(BoardCells boardCells)
         {
             return livingCells.CountIn(boardCells) == 3;
         }
@@ -54,7 +54,7 @@ namespace GameOfLife
 
         private LivingCellss livingCells;
 
-        public bool IsAlive(IEnumerable<Cell> boardCells)
+        public bool IsAlive(BoardCells boardCells)
         {
             return livingCells.CountIn(boardCells) >= 2 && livingCells.CountIn(boardCells) <= 3;
         }

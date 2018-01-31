@@ -58,7 +58,7 @@ namespace GameOfLife
         }
 
 
-        public Cell Evolve(IEnumerable<Cell> boardCells)
+        public Cell Evolve(BoardCells boardCells)
         {
             return
                 new Cell(
@@ -83,9 +83,9 @@ namespace GameOfLife
             return this.coordonnate;
         }
 
-        public IEnumerable<Coordonnate> DeadNeighborhood(IEnumerable<Cell> linvingCells)
+        public IEnumerable<Coordonnate> DeadNeighborhood(BoardCells livingCells)
         {
-            return neighborhoodCells.Coordonnates().Where(nbCoord => !linvingCells.Any(cell => cell.Matche(nbCoord.CoordX(), nbCoord.CoordY())));
+            return neighborhoodCells.Coordonnates().Where(nbCoord => !livingCells.Cells().Any(cell => cell.Matche(nbCoord)));
         }
     }
 }

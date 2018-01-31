@@ -115,6 +115,33 @@ namespace GameOfLifeTest
             Assert.IsTrue(board.History().Count() == 10);
             Assert.IsTrue(board.LivingCells().Count() == 5);
         }
+
+        [TestMethod]
+        public void BoardGameTest7()
+        {
+            
+            var board =
+                new LastRound(
+                    10,
+                    new List<Coordonnate>() 
+                    { 
+                        new Coordonnate(0, 1),
+                        new Coordonnate(1, 1),
+                        new Coordonnate(2, 1),
+                        new Coordonnate(3, 1),
+                        new Coordonnate(4, 1),
+                        new Coordonnate(5, 1),
+                        new Coordonnate(6, 1),
+                        new Coordonnate(7, 1),
+                        new Coordonnate(8, 1),
+                        new Coordonnate(9, 1),
+                    })
+                .NextRound();
+
+            var chose = board.History().Select(game => game.LivingCells());
+
+            Assert.IsTrue(board.History().Count() == 11);
+        }
        
 
     }

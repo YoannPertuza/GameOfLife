@@ -86,7 +86,7 @@ namespace GameOfLife
         public MatchingCells(BoardCoordonnates neighborhoodCells, BoardCells cellsToMatch)
         {
             this.neighborhoodCells = neighborhoodCells;
-            this.cellsToMatch = cellsToMatch;
+            this.cellsToMatch = new CacheCells(cellsToMatch);
         }
 
         public IEnumerable<Cell> Cells()
@@ -98,27 +98,26 @@ namespace GameOfLife
 
     public class EvolvedCells : BoardCells
     {
-        private BoardCells changingCells;
-
+      
         public EvolvedCells(IEnumerable<Coordonnate> livingCoords)
         {
-            this.changingCells = new ChangingCells(livingCoords);
+            this.inGame = new CacheCells(new InGame(livingCoords));
         }
+
+        private BoardCells inGame;
 
         public IEnumerable<Cell> Cells()
         {
-            var cells = this.changingCells.Cells();
-
-            return cells.Select(cell => cell.Evolve(cells));
+            return inGame.Cells().Select(cell => cell.Evolve(inGame));
         }
     }
 
-    public class ChangingCells : BoardCells
+    public class InGame : BoardCells
     {
         private BoardCells deadCells;
         private BoardCells livingCells;
 
-        public ChangingCells(IEnumerable<Coordonnate> livingCoords)
+        public InGame(IEnumerable<Coordonnate> livingCoords)
         {
             this.deadCells = new ConvertingCells(false, new Distinct(new DeadNeighborhood(livingCoords)));
             this.livingCells = new ConvertingCells(true, livingCoords);
@@ -130,6 +129,28 @@ namespace GameOfLife
             var deadCells = this.deadCells.Cells();
 
             return alivedCells.Concat(deadCells);
+        }
+    }
+
+    public class CacheCells : BoardCells
+    {
+        public CacheCells(BoardCells cells)
+        {
+            this.cells = cells;
+            this.cache = new List<Cell>();
+        }
+
+        private List<Cell> cache;
+        private BoardCells cells;
+
+        public IEnumerable<Cell> Cells()
+        {
+            if (!this.cache.Any())
+            {
+                this.cache.AddRange(cells.Cells());
+            }
+
+            return this.cache;
         }
     }
 

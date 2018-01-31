@@ -45,7 +45,7 @@ namespace GameOfLife
             var indexRound = this.currentRound;
             HistoricalGameBuilder tempBuilder = this.gameBuilder;
      
-            while (indexRound < roundToStop)
+            while (indexRound <= roundToStop)
             {
                 tempBuilder = tempBuilder.Next(tempBuilder.CurrentGame());
                 indexRound++;

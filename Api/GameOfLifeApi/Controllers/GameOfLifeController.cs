@@ -45,7 +45,7 @@ namespace GameOfLifeApi.Controllers
             var nextRoundGame =
                 new LastRound(
                     request.currentRound,
-                    request.round, 
+                    request.lastRound, 
                     request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
                 )              
                 .NextRound();
@@ -54,7 +54,7 @@ namespace GameOfLifeApi.Controllers
                 new UntilRound()
                 {
                     livingCells = nextRoundGame.LivingCells().Select(coord => new LivingCell() { coordX = coord.CoordX(), coordY = coord.CoordY() }).ToArray(),
-                    round = nextRoundGame.CurrentRound()
+                    lastRound = nextRoundGame.CurrentRound()
                 };
         }
 
@@ -64,7 +64,7 @@ namespace GameOfLifeApi.Controllers
             var historicalGames =
                 new LastRound(
                     request.currentRound,
-                    request.round,
+                    request.lastRound,
                     request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
                 )
                 .NextRound()
@@ -109,7 +109,7 @@ namespace GameOfLifeApi.Controllers
     public class UntilRound
     {
         public int currentRound { get; set; }
-        public int round { get; set; }
+        public int lastRound { get; set; }
         public LivingCell[] livingCells { get; set; }
     }
 

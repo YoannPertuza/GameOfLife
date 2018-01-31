@@ -15,9 +15,9 @@ namespace GameOfLife
 
         private BoardCoordonnates coordonnates;
 
-        public int CountIn(IEnumerable<Cell> boardCells)
+        public int CountIn(BoardCells boardCells)
         {
-            return new LivingCells(new MatchingCells(coordonnates, new DefaultCells(boardCells))).Cells().Count();
+            return new LivingCells(new MatchingCells(coordonnates, new DefaultCells(boardCells.Cells()))).Cells().Count();
         }
     }
 }

@@ -54,15 +54,14 @@ namespace GameOfLife
 
         public DeadNeighborhood(BoardCells livingCells)
         {
-            this.livingCells = livingCells;
+            this.livingCells = new CacheCells(livingCells);
         }
 
         private BoardCells livingCells;
 
         public IEnumerable<Coordonnate> Coordonnates()
         {
-            var livingCells = this.livingCells.Cells();
-            return livingCells.SelectMany(cell => cell.DeadNeighborhood(livingCells));           
+            return livingCells.Cells().SelectMany(cell => cell.DeadNeighborhood(livingCells));           
         }
     }
 
