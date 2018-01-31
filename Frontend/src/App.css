@@ -22,11 +22,29 @@
   height: 20px;
 }
 
+.board{
+  float: left;
+  margin: 20px;
+}
+
+.height, .width
+{
+  width: 50px;
+  margin-right: 10px;
+}
+
+.lastRound{
+    width: 50px;
+}
+
+.progressStep{
+vertical-align:middle;
+}
+
 .row {
   width: auto;
   height: 22px;
 }
-
 
 .end-of-line {
   display: block;

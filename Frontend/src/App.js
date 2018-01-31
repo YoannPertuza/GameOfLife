@@ -53,7 +53,7 @@ class HistoricalGameOfLifeName extends Component {
   buildHistory()
   {
     this.setState({waitingForHistory : true});
-    Axios.post('http://localhost:50047/api/gameoflife/historizegames', { livingCells :  this.state.livingCells, currentRound : this.state.currentRound, lastRound : this.state.lastRound} )
+    Axios.post('http://gameoflifeapi-dev.us-west-2.elasticbeanstalk.com/api/gameoflife/historizegames', { livingCells :  this.state.livingCells, currentRound : this.state.currentRound, lastRound : this.state.lastRound} )
     .then((response) => {
       this.setState({ games : response.data, waitingForHistory : false});
     });
@@ -101,7 +101,7 @@ class HistoricalGameOfLifeName extends Component {
     if (this.state.waitingForHistory)
     {
       return (
-        <div>
+        <div className="board">
           <Cells livingCells={this.state.livingCells} />
 
           <BarLoader
@@ -113,16 +113,16 @@ class HistoricalGameOfLifeName extends Component {
     } else
     {
       return (
-        <div>
+        <div className="board">
           <Cells livingCells={this.state.livingCells} />
 
           <button onClick={this.buildHistory}>Build History</button>
           <button onClick={this.reset} >Reset History</button>
 
-          <label>Until round</label><input type="number" onChange={this.roundChange} value={this.state.lastRound}/>
+          <label>Until round</label><input type="number" onChange={this.roundChange} value={this.state.lastRound} className="lastRound"/>
           <div>
             <button onClick={this.forwardInHistory} disabled={this.state.currentRound == 0 || this.state.games.length == 0}>Forward</button>
-            <input type="range" min="0" max={this.state.lastRound} onChange={this.rangeChange} value={this.state.currentRound}/>
+            <input type="range" min="0" max={this.state.lastRound} onChange={this.rangeChange} value={this.state.currentRound} disabled={this.state.games.length == 0} className="progressStep"/>
             <button onClick={this.nextInHistory} disabled={this.state.currentRound == this.state.lastRound || this.state.games.length == 0}>Next</button>
             <button onClick={this.play} disabled={this.state.games.length == 0}>Play</button>
             <select onChange={this.speedChange} value={this.state.speed}>
@@ -193,7 +193,7 @@ class SimpleGameOfLife extends Component {
   render() {
 
     return (
-      <div>
+      <div className="board">
         <Cells livingCells={this.state.livingCells} />
 
         <button onClick={this.nextRound} >Next Round</button>
@@ -280,8 +280,10 @@ class Cells extends Component {
             </div>
           )
         }
-        <label>Height : </label><input type="number" onChange={this.heightChange} />
-        <label>Width : </label><input type="number" onChange={this.widthChange} />
+        <p>
+          <label>Height : </label><input type="number" onChange={this.heightChange} className="height" value={this.state.height} />
+          <label>Width : </label><input type="number" onChange={this.widthChange} className="width" value={this.state.width}/>
+        </p>
         </div>
       );
   }
