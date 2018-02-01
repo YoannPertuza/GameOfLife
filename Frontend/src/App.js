@@ -33,8 +33,13 @@ class HistoricalGameOfLifeName extends Component {
     this.play = this.play.bind(this);
     this.speedChange = this.speedChange.bind(this);
     this.stop = this.stop.bind(this);
+    this.majLivingCells = this.majLivingCells.bind(this);
   }
 
+  majLivingCells(livingCellss)
+  {
+    this.setState({ livingCells : livingCellss });
+  }
 
   speedChange(event)
   {
@@ -81,13 +86,11 @@ class HistoricalGameOfLifeName extends Component {
 
   async play(event)
   {
-
     for(var index = this.state.currentRound; index <= this.state.lastRound; index++)
     {
         this.setState({ livingCells : this.state.games[index].livingCells, currentRound : index });
         await this.sleep(this.state.speed);
     }
-
   }
 
   stop(event)
@@ -97,12 +100,11 @@ class HistoricalGameOfLifeName extends Component {
 
   render()
   {
-
     if (this.state.waitingForHistory)
     {
       return (
         <div className="board">
-          <Cells livingCells={this.state.livingCells} />
+          <CanvaCells livingCells={this.state.livingCells} height="20" width="20" cellSize="20" notifyParent={this.majLivingCells} />
 
           <BarLoader
             color={'#123abc'}
@@ -114,10 +116,10 @@ class HistoricalGameOfLifeName extends Component {
     {
       return (
         <div className="board">
-          <Cells livingCells={this.state.livingCells} />
+          <CanvaCells livingCells={this.state.livingCells} height="20" width="20" cellSize="20" notifyParent={this.majLivingCells} />
 
-          <button onClick={this.buildHistory}>Build History</button>
-          <button onClick={this.reset} >Reset History</button>
+          <button onClick={this.buildHistory} disabled={this.state.games.length > 0 || this.state.livingCells.length == 0}>Build History</button>
+          <button onClick={this.reset} disabled={this.state.games.length == 0}>Reset History</button>
 
           <label>Until round</label><input type="number" onChange={this.roundChange} value={this.state.lastRound} className="lastRound"/>
           <div>
@@ -151,6 +153,12 @@ class SimpleGameOfLife extends Component {
     this.reset = this.reset.bind(this);
     this.saveFigure = this.saveFigure.bind(this);
     this.submitFile = this.submitFile.bind(this);
+    this.majLivingCells = this.majLivingCells.bind(this);
+  }
+
+  majLivingCells(livingCellss)
+  {
+    this.setState({ livingCells : livingCellss });
   }
 
   nextRound()
@@ -194,7 +202,7 @@ class SimpleGameOfLife extends Component {
 
     return (
       <div className="board">
-        <Cells livingCells={this.state.livingCells} />
+        <CanvaCells livingCells={this.state.livingCells} height="20" width="20" cellSize="20" notifyParent={this.majLivingCells} />
 
         <button onClick={this.nextRound} >Next Round</button>
         <button onClick={this.reset} >Reset</button>
@@ -214,13 +222,41 @@ class SimpleGameOfLife extends Component {
 }
 
 
-class Cells extends Component {
+class CanvaCells extends Component {
   constructor(props) {
     super(props);
-    this.state = {livingCells : props.livingCells, height : 20, width : 20}
+    this.state = {livingCells : props.livingCells, height : props.height, width : props.width, cellSize : props.cellSize, mouseDown : false, mouseDownX : 0, mouseDownY : 0}
     this.switchCellState = this.switchCellState.bind(this);
     this.heightChange = this.heightChange.bind(this);
     this.widthChange = this.widthChange.bind(this);
+    this.mouseUp = this.mouseUp.bind(this);
+    this.mouseDown = this.mouseDown.bind(this);
+    this.mouseMove = this.mouseMove.bind(this);
+  }
+
+  mouseDown(event){
+    var position =  this.getMousePos(this.refs.canvas, event);
+    var graphX = Math.trunc(position.x / this.state.cellSize );
+    var graphY =  Math.trunc(position.y / this.state.cellSize);
+    this.switchCellState(event);
+    this.setState({mouseDown : true, mouseDownX : graphX, mouseDownY : graphY});
+  }
+
+  mouseUp(event){
+    this.switchCellState(event);
+    this.setState({mouseDown : false});
+  }
+
+  mouseMove(event){
+    var position =  this.getMousePos(this.refs.canvas, event);
+    var graphX = Math.trunc(position.x / this.state.cellSize );
+    var graphY =  Math.trunc(position.y / this.state.cellSize);
+
+    if (this.state.mouseDown && (graphX !== this.state.mouseDownX || graphY !== this.state.mouseDownY))
+    {
+      this.switchCellState(event);
+      this.setState({mouseDownX : graphX, mouseDownY : graphY});
+    }
   }
 
   componentWillReceiveProps(nextProps)
@@ -238,48 +274,68 @@ class Cells extends Component {
     this.setState({ width : event.target.value});
   }
 
-  switchCellState(coordx, coordy, isAlive)
-  {
-    if (isAlive) {
-       this.state.livingCells.push({coordX : coordx, coordY : coordy });
-    } else {
-      this.state.livingCells.splice(this.state.livingCells.findIndex(function(element) { return element.coordX === coordx && element.coordY === coordy; }), 1) ;
-    }
+   getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+}
 
+  switchCellState(event)
+  {
+    const ctx = this.refs.canvas.getContext('2d');
+    var position =  this.getMousePos(this.refs.canvas, event);
+    var graphX = Math.trunc(position.x / this.state.cellSize );
+    var graphY =  Math.trunc(position.y / this.state.cellSize);
+
+    if (this.isCellLiving(graphX, graphY)) {
+      ctx.fillStyle = '#DCDCDC';
+      this.state.livingCells.splice(this.state.livingCells.findIndex(function(element) { return element.coordX === graphX && element.coordY === graphY; }), 1) ;
+    } else {
+      ctx.fillStyle = 'black';
+      this.state.livingCells.push({coordX : graphX, coordY : graphY });
+    }
     this.setState({ livingCells : this.state.livingCells});
+    this.props.notifyParent(this.state.livingCells);
+    ctx.fillRect(this.state.cellSize * graphX, this.state.cellSize * graphY, this.state.cellSize, this.state.cellSize);
+
   }
 
   isCellLiving(coordX, coordY) {
     return this.state.livingCells.findIndex(function(element) { return element.coordX === coordX && element.coordY === coordY; }) !== -1;
   }
 
-  render()
-  {
-    var rows = [];
-    for(var i=0; i < this.state.height; i++) {
-      rows.push(i);
-    }
-    var colums = [];
-    for(var j=0; j < this.state.width; j++) {
-      colums.push(j);
+  componentDidMount() {
+       this.updateCanvas();
+   }
+
+   componentDidUpdate() {
+       this.updateCanvas();
+   }
+
+   updateCanvas() {
+        const ctx = this.refs.canvas.getContext('2d');
+
+        for(var indexY = 0; indexY < this.state.height; indexY++)
+        {
+          for(var indexX = 0; indexX < this.state.width; indexX++)
+          {
+            if (this.isCellLiving(indexX, indexY)) {
+              ctx.fillStyle = 'black';
+            } else {
+              ctx.fillStyle = '#DCDCDC';
+            }
+            ctx.fillRect(this.state.cellSize * indexX, this.state.cellSize * indexY, this.state.cellSize, this.state.cellSize);
+          }
+        }
     }
 
+  render()
+  {
     return (
       <div>
-        {rows.map((row, indexY) =>
-            <div className="row" key={indexY}>
-              {colums.map((row, indexX) =>
-                  <Cell
-                      key={indexX * 10 + indexY}
-                      switchState={this.switchCellState}
-                      isAlive={this.isCellLiving(indexX, indexY)}
-                      x={indexX}
-                      y={indexY}
-                  />
-              )}
-            </div>
-          )
-        }
+      <canvas ref="canvas" width={this.state.width * this.state.cellSize} height={this.state.height * this.state.cellSize} onClick={this.switchCellState} onMouseDown={this.mouseDown} onMouseUp={this.mouseUp} onMouseMove={this.mouseMove}/>
         <p>
           <label>Height : </label><input type="number" onChange={this.heightChange} className="height" value={this.state.height} />
           <label>Width : </label><input type="number" onChange={this.widthChange} className="width" value={this.state.width}/>
@@ -290,44 +346,5 @@ class Cells extends Component {
 }
 
 
-class Cell extends Component {
-
-  constructor(props) {
-    super(props);
-    this.state = { mouseDown : false, isAlive : this.props.isAlive, coordX : this.props.x, coordY : this.props.y };
-    this.switchState = this.switchState.bind(this);
-  }
-
-  componentWillReceiveProps(nextProps)
-  {
-      this.setState({ mouseDown : false, isAlive : nextProps.isAlive, coordX : nextProps.x, coordY : nextProps.y });
-  }
-
-
-
-  switchState()
-  {
-    if (this.state.isAlive) {
-      this.setState({isAlive: false});
-      this.props.switchState(this.state.coordX, this.state.coordY, false);
-    } else {
-      this.setState({isAlive: true});
-      this.props.switchState(this.state.coordX, this.state.coordY, true);
-    }
-  }
-
-  render() {
-    if (this.state.isAlive) {
-      return (
-        <div className="alive-cell" onClick={this.switchState}   />
-      );
-    } else {
-      return (
-        <div className="dead-cell" onClick={this.switchState}  />
-      );
-    }
-
-  }
-}
 
 export default App;

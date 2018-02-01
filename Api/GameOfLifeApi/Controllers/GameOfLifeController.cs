@@ -94,6 +94,7 @@ namespace GameOfLifeApi.Controllers
         }      
     }
 
+  
     public class LivingCell
     {
         public int coordX { get; set; }
