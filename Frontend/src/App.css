@@ -50,3 +50,7 @@ vertical-align:middle;
   display: block;
   float:  none;
 }
+
+.figures, .canvas{
+  float: left;
+}

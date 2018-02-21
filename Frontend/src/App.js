@@ -58,7 +58,7 @@ class HistoricalGameOfLifeName extends Component {
   buildHistory()
   {
     this.setState({waitingForHistory : true});
-    Axios.post('http://gameoflifeapi-dev.us-west-2.elasticbeanstalk.com/api/gameoflife/historizegames', { livingCells :  this.state.livingCells, currentRound : this.state.currentRound, lastRound : this.state.lastRound} )
+    Axios.post('http://localhost:50047/api/gameoflife/historizegames', { livingCells :  this.state.livingCells, currentRound : this.state.currentRound, lastRound : this.state.lastRound} )
     .then((response) => {
       this.setState({ games : response.data, waitingForHistory : false});
     });
@@ -116,25 +116,30 @@ class HistoricalGameOfLifeName extends Component {
     {
       return (
         <div className="board">
+
           <CanvaCells livingCells={this.state.livingCells} height="20" width="20" cellSize="20" notifyParent={this.majLivingCells} />
 
-          <button onClick={this.buildHistory} disabled={this.state.games.length > 0 || this.state.livingCells.length == 0}>Build History</button>
-          <button onClick={this.reset} disabled={this.state.games.length == 0}>Reset History</button>
-
-          <label>Until round</label><input type="number" onChange={this.roundChange} value={this.state.lastRound} className="lastRound"/>
           <div>
-            <button onClick={this.forwardInHistory} disabled={this.state.currentRound == 0 || this.state.games.length == 0}>Forward</button>
-            <input type="range" min="0" max={this.state.lastRound} onChange={this.rangeChange} value={this.state.currentRound} disabled={this.state.games.length == 0} className="progressStep"/>
-            <button onClick={this.nextInHistory} disabled={this.state.currentRound == this.state.lastRound || this.state.games.length == 0}>Next</button>
-            <button onClick={this.play} disabled={this.state.games.length == 0}>Play</button>
-            <select onChange={this.speedChange} value={this.state.speed}>
-              <option value="1000">Low</option>
-              <option value="500">Medium</option>
-              <option value="250">Fast</option>
-              <option value="125">Super Fast</option>
-            </select>
+            <button onClick={this.buildHistory} disabled={this.state.games.length > 0 || this.state.livingCells.length == 0}>Build History</button>
+            <button onClick={this.reset} disabled={this.state.games.length == 0}>Reset History</button>
+
+            <label>Until round</label><input type="number" onChange={this.roundChange} value={this.state.lastRound} className="lastRound"/>
+            <div>
+              <button onClick={this.forwardInHistory} disabled={this.state.currentRound == 0 || this.state.games.length == 0}>Forward</button>
+              <input type="range" min="0" max={this.state.lastRound} onChange={this.rangeChange} value={this.state.currentRound} disabled={this.state.games.length == 0} className="progressStep"/>
+              <button onClick={this.nextInHistory} disabled={this.state.currentRound == this.state.lastRound || this.state.games.length == 0}>Next</button>
+              <button onClick={this.play} disabled={this.state.games.length == 0}>Play</button>
+              <select onChange={this.speedChange} value={this.state.speed}>
+                <option value="1000">Low</option>
+                <option value="500">Medium</option>
+                <option value="250">Fast</option>
+                <option value="125">Super Fast</option>
+              </select>
+            </div>
+            <h3>Round : {this.state.currentRound}</h3>
           </div>
-          <h3>Round : {this.state.currentRound}</h3>
+
+
         </div>
       );
     }
@@ -148,7 +153,7 @@ class SimpleGameOfLife extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { livingCells : [], round : 0};
+    this.state = { livingCells : [], round : 0, templatesFigure : []};
     this.nextRound = this.nextRound.bind(this);
     this.reset = this.reset.bind(this);
     this.saveFigure = this.saveFigure.bind(this);
@@ -163,9 +168,9 @@ class SimpleGameOfLife extends Component {
 
   nextRound()
   {
-    Axios.post('http://gameoflifeapi-dev.us-west-2.elasticbeanstalk.com/api/gameoflife/nextround', this.state)
+    Axios.post('http://localhost:50047/api/gameoflife/nextround', this.state)
     .then((response) => {
-      this.setState({ livingCells : response.data.livingCells, round : response.data.round});
+      this.setState({ livingCells : response.data.livingCells, currentRound : response.data.round});
     });
   }
 
@@ -185,7 +190,7 @@ class SimpleGameOfLife extends Component {
     event.preventDefault();
     var formData = new FormData();
     formData.append("file", this.fileInput.files[0]);
-    Axios.post('http://gameoflifeapi-dev.us-west-2.elasticbeanstalk.com/api/gameoflife/readfigure', formData, {
+    Axios.post('http://localhost:50047/api/gameoflife/readfigure', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -198,34 +203,80 @@ class SimpleGameOfLife extends Component {
     return this.state.livingCells.findIndex(function(element) { return element.coordX === coordX && element.coordY === coordY; }) !== -1;
   }
 
+  componentDidMount() {
+    Axios.get('http://localhost:50047/api/gameoflife/AllFigures')
+    .then((response) => {
+      this.setState({ templatesFigure : response.data});
+    });
+   }
+
   render() {
 
+    const figures =
+    this.state.templatesFigure.map((figure) =>
+        <CanvaFigure key={figure.ID} id={figure.ID} figureName={figure.figureName} relativeCoords={figure.template} />
+      );
     return (
       <div className="board">
-        <CanvaCells livingCells={this.state.livingCells} height="20" width="20" cellSize="20" notifyParent={this.majLivingCells} />
+        <div>
+          <div className="figures">
+            {figures}
+          </div>
+          <CanvaCells livingCells={this.state.livingCells} height="20" width="20" cellSize="20" notifyParent={this.majLivingCells} />
+          <div>
+            <button onClick={this.nextRound} >Next Round</button>
+            <button onClick={this.reset} >Reset</button>
+            <button onClick={this.saveFigure}>Save figure</button>
 
-        <button onClick={this.nextRound} >Next Round</button>
-        <button onClick={this.reset} >Reset</button>
-        <button onClick={this.saveFigure}>Save figure</button>
+            <form onSubmit={this.submitFile}>
+              <input name="figure" type="file" ref={input => {
+                    this.fileInput = input;
+                  }}/>
+              <input type="submit" />
+            </form>
 
-        <form onSubmit={this.submitFile}>
-          <input name="figure" type="file" ref={input => {
-                this.fileInput = input;
-              }}/>
-          <input type="submit" />
-        </form>
+            <h3>Round : {this.state.round}</h3>
+          </div>
 
-        <h3>Round : {this.state.round}</h3>
+        </div>
+
+
       </div>
     );
   }
 }
 
+class CanvaFigure extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {id :  this.props.id, figureName : this.props.figureName, relativeCoords : this.props.relativeCoords};
+  }
+
+  render()
+  {
+    return (
+      <div>
+        {this.state.figureName}
+        <canvas ref="fig" height="20" width="20" />
+      </div>
+    );
+  }
+}
 
 class CanvaCells extends Component {
   constructor(props) {
     super(props);
-    this.state = {livingCells : props.livingCells, height : props.height, width : props.width, cellSize : props.cellSize, mouseDown : false, mouseDownX : 0, mouseDownY : 0}
+    this.state =
+    {
+      livingCells : props.livingCells,
+      height : props.height,
+      width : props.width,
+      cellSize : props.cellSize,
+      mouseDown : false,
+      mouseDownX : 0,
+      mouseDownY : 0,
+      drawOption : "draw"
+    }
     this.switchCellState = this.switchCellState.bind(this);
     this.heightChange = this.heightChange.bind(this);
     this.widthChange = this.widthChange.bind(this);
@@ -334,7 +385,7 @@ class CanvaCells extends Component {
   render()
   {
     return (
-      <div>
+      <div className="canvas">
       <canvas ref="canvas" width={this.state.width * this.state.cellSize} height={this.state.height * this.state.cellSize} onClick={this.switchCellState} onMouseDown={this.mouseDown} onMouseUp={this.mouseUp} onMouseMove={this.mouseMove}/>
         <p>
           <label>Height : </label><input type="number" onChange={this.heightChange} className="height" value={this.state.height} />

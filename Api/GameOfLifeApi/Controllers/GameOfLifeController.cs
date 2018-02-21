@@ -13,6 +13,11 @@ using System.Web;
 using System.IO;
 using System.Web.Hosting;
 using System.Security.AccessControl;
+using MongoDB.Driver;
+using MongoDB.Bson;
+using Newtonsoft.Json;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 
 namespace GameOfLifeApi.Controllers
@@ -22,66 +27,88 @@ namespace GameOfLifeApi.Controllers
     {
           
         [HttpPost]
-        public NextRound NextRound(NextRound request)
+        public NextEvolution NextRound(NextEvolution request)
         {
-            var nextRoundGame =
-                new Game(
-                    request.round,
-                    request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
-                )
-                .NextRound();
-
             return
-                new NextRound()
-                {
-                    livingCells = nextRoundGame.LivingCells().Select(coord => new LivingCell() { coordX = coord.CoordX(), coordY = coord.CoordY()}).ToArray(),
-                    round = nextRoundGame.CurrentRound()
-                };
+                new DTONextEvolution(
+                    new DefaultEvolution(
+                        request.currentRound,
+                        request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
+                    )
+                    .EvolutionnateGame()
+                ).Reponse();        
         }
+
 
         [HttpPost]
-        public UntilRound UntilRound(UntilRound request)
+        public NextEvolution[] HistorizeGames(NextEvolution request)
         {
-            var nextRoundGame =
-                new LastRound(
-                    request.currentRound,
-                    request.lastRound, 
-                    request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
-                )              
-                .NextRound();
-
             return
-                new UntilRound()
-                {
-                    livingCells = nextRoundGame.LivingCells().Select(coord => new LivingCell() { coordX = coord.CoordX(), coordY = coord.CoordY() }).ToArray(),
-                    lastRound = nextRoundGame.CurrentRound()
-                };
+                new DTOArrayNextEvolution(
+                    new LastEvolution(
+                        request.lastRound,
+                        request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
+                    )
+                    .EvolutionnateGame()
+                    .History()
+                ).Reponse();           
         }
 
-        [HttpPost]
-        public NextRound[] HistorizeGames(UntilRound request)
+        public interface IDTOFactory<T>
         {
-            var historicalGames =
-                new LastRound(
-                    request.currentRound,
-                    request.lastRound,
-                    request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
-                )
-                .NextRound()
-                .History();
+            T Reponse();
+        }
 
-            return
-                historicalGames.Select(
-                game => 
-                    new NextRound() 
-                    { 
-                        round = game.CurrentRound(), 
-                        livingCells = game.LivingCells().Select(coord => new LivingCell() { coordX = coord.CoordX(), coordY = coord.CoordY() }).ToArray() 
-                    }
-                ).ToArray();
+        public class DTOArrayNextEvolution : IDTOFactory<NextEvolution[]>
+        {
+            public DTOArrayNextEvolution(IEnumerable<IEvolutionGame> games)
+            {
+                this.games = games.Select(game => new DTONextEvolution(game));
+            }
+
+            private IEnumerable<DTONextEvolution> games;
+
+            public NextEvolution[] Reponse()
+            {
+                return games.Select(game => game.Reponse()).ToArray();                    
+            }
+        }
+
+        public class DTONextEvolution : IDTOFactory<NextEvolution>
+        {
+            public DTONextEvolution(IEvolutionGame game)
+            {
+                this.game = game;
+            }
+
+            private IEvolutionGame game;
+
+            public NextEvolution Reponse()
+            {
+                return 
+                    new NextEvolution()
+                    {
+                        livingCells = game.LivingCells().Select(coord => new DTOCoordonnate() { coordX = coord.CoordX(), coordY = coord.CoordY() }).ToArray(),
+                        currentRound = game.CurrentEvolution()
+                    };
+            }
         }
 
 
+        public class DTOArrayRelativeCoordonnate : IDTOFactory<DTORelativeCoordonnate[]>
+        {
+            public DTOArrayRelativeCoordonnate(IEnumerable<RelativeCoordonnate> relative)
+            {
+                this.relative = relative;
+            }
+
+            private IEnumerable<RelativeCoordonnate> relative;
+  
+            public DTORelativeCoordonnate[] Reponse()
+            {
+                return this.relative.Select(relativeCoord => new DTORelativeCoordonnate() { coordX = relativeCoord.CoordXCalculation(), coordY = relativeCoord.CoordYCalculation() }).ToArray();
+            }
+        }
 
         [HttpPost]
         public string ReadFigure()
@@ -91,28 +118,94 @@ namespace GameOfLifeApi.Controllers
             var content = new StreamReader(files[0].InputStream).ReadToEnd();
 
             return content;
-        }      
+        }
+
+        [HttpPost]
+        public DTOFigureTemplate SaveFigureAsTemplate(DTOFigureTemplateRequest templateRequest)
+        {          
+            var dtos =
+                new DTOArrayRelativeCoordonnate(
+                    new InRelativeCoordonnates(
+                        new DefaultCoordonnates(
+                            templateRequest.coordsFigure.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
+                        )
+                    )
+                    .RelativeCoord()
+                ).Reponse();
+
+
+            var client = new MongoDB.Driver.MongoClient("mongodb://yoann:Monaco58898@gameoflife-shard-00-00-iohzq.mongodb.net:27017,gameoflife-shard-00-01-iohzq.mongodb.net:27017,gameoflife-shard-00-02-iohzq.mongodb.net:27017/admin?replicaSet=GameOfLife-shard-0&ssl=true");
+
+            var database = client.GetDatabase("gameOfLife");
+            var collection = database.GetCollection<DTOFigureTemplate>("Figures");
+
+            collection.InsertOne(new DTOFigureTemplate() { figureName = templateRequest.figureName, template = dtos });
+
+            return new DTOFigureTemplate() { figureName = templateRequest.figureName, template = dtos };
+        }
+
+        [HttpGet]
+        public DTOFigureTemplate[] AllFigures()
+        {
+            var client = new MongoDB.Driver.MongoClient("mongodb://yoann:Monaco58898@gameoflife-shard-00-00-iohzq.mongodb.net:27017,gameoflife-shard-00-01-iohzq.mongodb.net:27017,gameoflife-shard-00-02-iohzq.mongodb.net:27017/admin?replicaSet=GameOfLife-shard-0&ssl=true");
+
+            var database = client.GetDatabase("gameOfLife");
+            var collection = database.GetCollection<BsonDocument>("Figures");
+
+            var result = collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
+
+            return result.Select(doc => BsonSerializer.Deserialize<DTOFigureTemplate>(doc)).ToArray();
+        }
+
+
     }
 
   
-    public class LivingCell
+    public class DTOCoordonnate
     {
         public int coordX { get; set; }
         public int coordY { get; set; }
     }
 
-    public class NextRound
+    public class DTORelativeCoordonnate
     {
-        public int round { get; set; }
-        public LivingCell[] livingCells { get; set; }
+        public string coordX { get; set; }
+        public string coordY { get; set; }
     }
 
-    public class UntilRound
+    public class DTOFigureTemplateRequest
+    {
+        public string figureName { get; set; }
+        public DTOCoordonnate[] coordsFigure { get; set; }
+
+    }
+
+ 
+    public class DTOFigureTemplate
+    {
+        [BsonId]
+        public ObjectId ID { get; set; }
+        public string figureName { get; set; }
+        public DTORelativeCoordonnate[] template { get; set; }
+    }
+
+    public class RealCoordsRequest
+    {
+        public string id { get; set; }
+        public DTOCoordonnate baseCoord { get; set; }
+    }
+
+
+    public class NextEvolution
     {
         public int currentRound { get; set; }
         public int lastRound { get; set; }
-        public LivingCell[] livingCells { get; set; }
+        public DTOCoordonnate[] livingCells { get; set; }
     }
+
+
+
+
 
 
 }
