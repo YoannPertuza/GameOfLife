@@ -20,6 +20,13 @@ namespace GameOfLife
             this.stayAlive = new StayAlive(new LivingCellss(neighborhoodCells));
         }
 
+        public MetaRule(bool isCellAlive, Rule stayAlive, Rule becomeAlive)
+        {
+            this.isCellAlive = isCellAlive;
+            this.becomeAlive = becomeAlive;
+            this.stayAlive = stayAlive;
+        }
+
         private bool isCellAlive;
         private Rule becomeAlive;
         private Rule stayAlive;
