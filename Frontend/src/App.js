@@ -58,7 +58,7 @@ class HistoricalGameOfLifeName extends Component {
   buildHistory()
   {
     this.setState({waitingForHistory : true});
-    Axios.post('http://localhost:50047/api/gameoflife/historizegames', { livingCells :  this.state.livingCells, currentRound : this.state.currentRound, lastRound : this.state.lastRound} )
+    Axios.post('http://127.0.0.1:8080/api/gameoflife/historizegames', { livingCells :  this.state.livingCells, currentRound : this.state.currentRound, lastRound : this.state.lastRound} )
     .then((response) => {
       this.setState({ games : response.data, waitingForHistory : false});
     });
@@ -168,7 +168,7 @@ class SimpleGameOfLife extends Component {
 
   nextRound()
   {
-    Axios.post('http://localhost:50047/api/gameoflife/nextround', this.state)
+    Axios.post('http://127.0.0.1:8080/api/gameoflife/nextround', this.state)
     .then((response) => {
       this.setState({ livingCells : response.data.livingCells, currentRound : response.data.round});
     });
@@ -190,7 +190,7 @@ class SimpleGameOfLife extends Component {
     event.preventDefault();
     var formData = new FormData();
     formData.append("file", this.fileInput.files[0]);
-    Axios.post('http://localhost:50047/api/gameoflife/readfigure', formData, {
+    Axios.post('http://127.0.0.1:8080/api/gameoflife/readfigure', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -204,7 +204,7 @@ class SimpleGameOfLife extends Component {
   }
 
   componentDidMount() {
-    Axios.get('http://localhost:50047/api/gameoflife/AllFigures')
+    Axios.get('http://127.0.0.1:8080/api/gameoflife/AllFigures')
     .then((response) => {
       this.setState({ templatesFigure : response.data});
     });

@@ -45,9 +45,9 @@ namespace GameOfLifeApi.Controllers
         {
             return
                 new DTOArrayNextEvolution(
-                    new LastEvolution(
+                    new EvolutionUntil(
                         request.lastRound,
-                        request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
+                        new DefaultEvolution(request.livingCells.Select(cell => new Coordonnate(cell.coordX, cell.coordY)))
                     )
                     .EvolutionnateGame()
                     .History()

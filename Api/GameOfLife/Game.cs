@@ -37,108 +37,41 @@ namespace GameOfLife
         IEnumerable<IEvolutionGame> History();
     }
 
-    public class LastEvolution : IEvolutionGame 
+    public class EvolutionUntil : IEvolutionGame
     {
-        public LastEvolution(int numberOfGeneration, IEvolutionGame currentGame)
+        public EvolutionUntil(int numberOfGeneration, IEvolutionGame currentGame)
         {
+            this.numberOfGeneration = numberOfGeneration;
             this.currentGame = currentGame;
-            this.gameBuilder = new NGenerationBuilder(currentGame, numberOfGeneration);
-        }
 
-        public LastEvolution(int numberOfGeneration, IEnumerable<Coordonnate> livingCells)
-            : this(numberOfGeneration, new DefaultEvolution(livingCells))
-        {
         }
 
         private IEvolutionGame currentGame;
-        private IEvolutionBuilder gameBuilder;
-  
+        private int numberOfGeneration;
+
         public IEvolutionGame EvolutionnateGame()
-        {       
-            return gameBuilder.Next(currentGame).CurrentGame();
+        {
+            IEvolutionGame last = this.currentGame.EvolutionnateGame();
+            for (int generation = 1; generation <= numberOfGeneration; generation++)
+            {
+                last = last.EvolutionnateGame();
+            }
+            return last;
         }
 
         public IEnumerable<Coordonnate> LivingCells()
         {
-            return this.gameBuilder.CurrentGame().LivingCells();
+            return this.currentGame.LivingCells();
         }
 
         public int CurrentEvolution()
         {
-            return this.gameBuilder.CurrentGame().CurrentEvolution();
+            return this.currentGame.CurrentEvolution();
         }
 
         public IEnumerable<IEvolutionGame> History()
         {
-            return this.gameBuilder.CurrentGame().History();
-        }
-    }
-
-    public interface IEvolutionBuilder
-    {
-        EvolutionBuilder Next(IEvolutionGame currentGame);
-        
-        IEvolutionGame CurrentGame();
-
-        IEnumerable<IEnumerable<Coordonnate>> CoordonnatesHistory();
-        
-    }
-
-    public class EvolutionBuilder : IEvolutionBuilder
-    {
-        public EvolutionBuilder(IEvolutionGame initialGame)
-        {
-            this.currentGame = new EvolutionWithHistory(initialGame);
-        }
-
-        private IEvolutionGame currentGame;
-
-        public EvolutionBuilder Next(IEvolutionGame currentGame)
-        {
-            return new EvolutionBuilder(new EvolutionWithHistory(currentGame.EvolutionnateGame()));
-        }
-
-        public IEvolutionGame CurrentGame()
-        {
-            return this.currentGame;
-        }
-
-        public IEnumerable<IEnumerable<Coordonnate>> CoordonnatesHistory()
-        {
-            return this.currentGame.History().Select(game => game.LivingCells());
-        }
-    }
-
-    public class NGenerationBuilder : IEvolutionBuilder
-    {
-        public NGenerationBuilder(IEvolutionGame initialGame, int numberOfGeneration)
-        {
-            this.evolutionBuilder = new EvolutionBuilder(new EvolutionWithHistory(initialGame));
-            this.numberOfGeneration = numberOfGeneration;
-        }
-
-        private EvolutionBuilder evolutionBuilder;
-        private int numberOfGeneration;
-
-        public EvolutionBuilder Next(IEvolutionGame currentGame)
-        {
-            EvolutionBuilder builder = this.evolutionBuilder;
-            for (int generation = 0; generation <= numberOfGeneration; generation++)
-            {
-                builder = builder.Next(builder.CurrentGame());
-            }
-
-            return builder;
-        }
-
-        public IEvolutionGame CurrentGame()
-        {
-            return this.evolutionBuilder.CurrentGame();
-        }
-
-        public IEnumerable<IEnumerable<Coordonnate>> CoordonnatesHistory()
-        {
-            return this.evolutionBuilder.CoordonnatesHistory();
+            return this.currentGame.History();
         }
     }
 
@@ -156,9 +89,9 @@ namespace GameOfLife
         public DefaultEvolution(int round, IEnumerable<Coordonnate> livingCells, IEnumerable<IEvolutionGame> history)
         {
             this.round = round;
-            this.livingCells = livingCells;
-            this.evolvedLivingCoords = new ConvertingCoordonnates(new LivingCells(new EvolvedCells(livingCells)));
+            this.livingCells = livingCells;         
             this.history = history;
+            this.evolvedLivingCoords = new ConvertingCoordonnates(new LivingCells(new EvolvedCells(livingCells)));
         }
 
         private int round;
@@ -169,7 +102,11 @@ namespace GameOfLife
 
         public IEvolutionGame EvolutionnateGame()
         {
-            return new DefaultEvolution(++round, evolvedLivingCoords.Coordonnates());
+            return 
+                new DefaultEvolution(
+                    ++round, 
+                    evolvedLivingCoords.Coordonnates(), 
+                    new List<IEvolutionGame>(this.History()) { new DefaultEvolution(round, livingCells) });
         }
 
         public IEnumerable<Coordonnate> LivingCells()
@@ -188,40 +125,6 @@ namespace GameOfLife
         }
     }
 
-    public class EvolutionWithHistory : IEvolutionGame
-    {
-        public EvolutionWithHistory(IEvolutionGame currentGame)
-        {
-            this.currentGame = currentGame;
-        }
-
-        private IEvolutionGame currentGame;
-
-        public IEvolutionGame EvolutionnateGame()
-        {
-            return 
-                new DefaultEvolution(
-                    this.currentGame.CurrentEvolution() + 1, 
-                    this.currentGame.EvolutionnateGame().LivingCells(),
-                    new List<IEvolutionGame>(this.currentGame.History()) { this.currentGame}
-                );
-        }
-
-        public IEnumerable<Coordonnate> LivingCells()
-        {
-            return this.currentGame.LivingCells();
-        }
-
-        public int CurrentEvolution()
-        {
-            return this.currentGame.CurrentEvolution();
-        }
-
-        public IEnumerable<IEvolutionGame> History()
-        {
-            return this.currentGame.History();
-        }
-    }
 
 
 
