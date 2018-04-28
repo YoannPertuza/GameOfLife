@@ -202,6 +202,33 @@ namespace GameOfLifeTest
 
         }
 
+        [TestMethod]
+        public void BinaryTreeTest()
+        {
+            var node =
+                new TwoBranchNode(
+                    10,
+                    new TwoBranchNode(
+                        9,
+                        new TwoBranchNode(
+                            8,
+                            new NullNode(),
+                            new NullNode()
+                        ),
+                        new NullNode()
+                    ),
+                    new TwoBranchNode(
+                        12,
+                        new TwoBranchNode(
+                            11,
+                            new NullNode(),
+                            new NullNode()
+                        ),
+                        new NullNode()
+                    )
+                ).Node(13);
+        }
+
 
     }
 }
