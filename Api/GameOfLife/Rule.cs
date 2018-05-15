@@ -8,19 +8,17 @@ namespace GameOfLife
 {
     public interface Rule
     {
-        bool IsAlive(BoardCells boardCells);
+        bool IsAlive(BoardCells livingCells);
     }
 
-    public class MetaRule : Rule
+    public class BasicRules : Rule
     {
-        public MetaRule(bool isCellAlive, BoardCoordonnates neighborhoodCells)
+        public BasicRules(bool isCellAlive, BoardCoordonnates neighborhoodCells)
+            : this(isCellAlive, new BasicStayAlive(neighborhoodCells),  new BasicBecomeAlive(neighborhoodCells))
         {
-            this.isCellAlive = isCellAlive;
-            this.becomeAlive = new BecomeAlive(new LivingCellss(neighborhoodCells));
-            this.stayAlive = new StayAlive(new LivingCellss(neighborhoodCells));
         }
 
-        public MetaRule(bool isCellAlive, Rule stayAlive, Rule becomeAlive)
+        public BasicRules(bool isCellAlive, Rule stayAlive, Rule becomeAlive)
         {
             this.isCellAlive = isCellAlive;
             this.becomeAlive = becomeAlive;
@@ -31,39 +29,59 @@ namespace GameOfLife
         private Rule becomeAlive;
         private Rule stayAlive;
 
-        public bool IsAlive(BoardCells boardCells)
+        public bool IsAlive(BoardCells livingCells)
         {
-            return this.isCellAlive ? this.stayAlive.IsAlive(boardCells) : this.becomeAlive.IsAlive(boardCells);
+            return this.isCellAlive ? this.stayAlive.IsAlive(livingCells) : this.becomeAlive.IsAlive(livingCells);
         }
     }
 
-    public class BecomeAlive : Rule
+    public class BasicBecomeAlive : Rule
     {
-        public BecomeAlive(LivingCellss livingCells)
+        public BasicBecomeAlive(BoardCoordonnates neighborhoodCells)
         {
-            this.livingCells = livingCells;
+            this.neighborhoodCells = new MatchingCellsFactory(neighborhoodCells);
         }
 
-        private LivingCellss livingCells;
+        private MatchingCellsFactory neighborhoodCells;
 
-        public bool IsAlive(BoardCells boardCells)
+        public bool IsAlive(BoardCells livingCells)
         {
-            return livingCells.CountIn(boardCells) == 3;
+            return this.neighborhoodCells.MatchingCells(livingCells).Cells().Count() == 3;
         }
     }
 
-    public class StayAlive : Rule
+    public class BasicStayAlive : Rule
     {
-        public StayAlive(LivingCellss livingCells)
+        public BasicStayAlive(BoardCoordonnates neighborhoodCells)
         {
-            this.livingCells = livingCells;
+            this.neighborhoodCells = new MatchingCellsFactory(neighborhoodCells);
         }
 
-        private LivingCellss livingCells;
+        private MatchingCellsFactory neighborhoodCells;
 
-        public bool IsAlive(BoardCells boardCells)
+        public bool IsAlive(BoardCells livingCells)
         {
-            return livingCells.CountIn(boardCells) >= 2 && livingCells.CountIn(boardCells) <= 3;
+            var matchingCells = neighborhoodCells.MatchingCells(livingCells);
+
+            return matchingCells.Cells().Count() >= 2 && matchingCells.Cells().Count() <= 3;
         }
     }
+
+    public class MatchingCellsFactory
+    {
+        public MatchingCellsFactory(BoardCoordonnates neighborhoodCells)
+        {
+            this.neighborhoodCells = neighborhoodCells;
+        }
+
+        private BoardCoordonnates neighborhoodCells;
+
+        public BoardCells MatchingCells(BoardCells livingCells)
+        {
+            return new MatchingCells(neighborhoodCells, livingCells.Cells());
+        }
+    }
+
+
+    
 }

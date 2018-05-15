@@ -43,7 +43,11 @@ namespace GameOfLife
         {
             this.numberOfGeneration = numberOfGeneration;
             this.currentGame = currentGame;
+        }
 
+        public EvolutionUntil(int numberOfGeneration, IEnumerable<Coordonnate> livingCells)
+            : this(numberOfGeneration, new DefaultEvolution(livingCells))
+        {            
         }
 
         private IEvolutionGame currentGame;

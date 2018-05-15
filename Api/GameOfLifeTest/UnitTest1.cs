@@ -78,7 +78,7 @@ namespace GameOfLifeTest
         public void BoardGameTest5()
         {
             var board =
-                new LastEvolution(
+                new EvolutionUntil(
                     4,
                     new List<Coordonnate>() 
                     { 
@@ -100,7 +100,7 @@ namespace GameOfLifeTest
         public void BoardGameTest6()
         {
             var board =
-                new LastEvolution(
+                new EvolutionUntil(
                     10,
                     new List<Coordonnate>() 
                     { 
@@ -123,7 +123,7 @@ namespace GameOfLifeTest
         {
             
             var board =
-                new LastEvolution(
+                new EvolutionUntil(
                     10,
                     new List<Coordonnate>() 
                     { 

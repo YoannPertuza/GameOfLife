@@ -89,6 +89,11 @@ namespace GameOfLife
             this.cellsToMatch = new CacheCells(cellsToMatch);
         }
 
+        public MatchingCells(BoardCoordonnates neighborhoodCells, IEnumerable<Cell> cellsToMatch)
+            : this(neighborhoodCells, new DefaultCells(cellsToMatch))
+        {
+        }
+
         public IEnumerable<Cell> Cells()
         {
             return neighborhoodCells.Coordonnates().SelectMany(coord => cellsToMatch.Cells().Where(cell => cell.Matche(coord)));
@@ -97,18 +102,19 @@ namespace GameOfLife
 
 
     public class EvolvedCells : BoardCells
-    {
-      
+    {      
         public EvolvedCells(IEnumerable<Coordonnate> livingCoords)
-        {
+        {         
             this.inGame = new CacheCells(new InGame(livingCoords));
+            this.livingCells = new CacheCells(new ConvertingCells(true, livingCoords));
         }
 
+        private BoardCells livingCells;
         private BoardCells inGame;
 
         public IEnumerable<Cell> Cells()
         {
-            return inGame.Cells().Select(cell => cell.Evolve(inGame));
+            return inGame.Cells().Select(cell => cell.Evolve(livingCells));
         }
     }
 

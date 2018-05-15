@@ -7,6 +7,56 @@ using NCalc;
 
 namespace GameOfLife
 {
+    public interface CoordFactory
+    {
+        Coordonnate Coord();
+    }
+
+    public class TopLeftCoord : CoordFactory
+    {
+        public TopLeftCoord(Coordonnate coord)
+        {
+            this.coord = coord;
+        }
+
+        private  Coordonnate coord;
+
+        public Coordonnate Coord()
+        {
+            return new Coordonnate(coord.CoordX() - 1, coord.CoordY() - 1);
+        }
+    }
+
+    public class TopMiddleCoord : CoordFactory
+    {
+        public TopMiddleCoord(Coordonnate coord)
+        {
+            this.coord = coord;
+        }
+
+        private  Coordonnate coord;
+
+        public Coordonnate Coord()
+        {
+            return new Coordonnate(coord.CoordX(), coord.CoordY() - 1);
+        }
+    }
+
+    public class TopRightCoord : CoordFactory
+    {
+        public TopRightCoord(Coordonnate coord)
+        {
+            this.coord = coord;
+        }
+
+        private  Coordonnate coord;
+
+        public Coordonnate Coord()
+        {
+            return new Coordonnate(coord.CoordX() + 1, coord.CoordY() - 1);
+        }
+    }
+
     public class Coordonnate 
     {
         public Coordonnate(int x, int y)
@@ -37,7 +87,6 @@ namespace GameOfLife
         {
             return this.x * 10 + this.y + this.y * 10 + this.x; 
         }
-
     }
 
 

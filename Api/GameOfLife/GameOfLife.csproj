@@ -49,7 +49,6 @@
     <Compile Include="Cell.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Coordonnates.cs" />
-    <Compile Include="LivingCells.cs" />
     <Compile Include="Rule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

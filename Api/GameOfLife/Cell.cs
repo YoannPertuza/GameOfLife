@@ -9,23 +9,22 @@ namespace GameOfLife
     public class Cell
     {
         public Cell(bool alive, int coordonnateX, int coordonnateY, Neighborhood neighborhoodCells)
-            : this(alive, new Coordonnate(coordonnateX, coordonnateY), neighborhoodCells, new MetaRule(alive, neighborhoodCells))
+            : this(alive, new Coordonnate(coordonnateX, coordonnateY), neighborhoodCells, new BasicRules(alive, neighborhoodCells))
         {
-
         }
 
         public Cell(int coordonnateX, int coordonnateY)
-            : this(false, new Coordonnate(coordonnateX, coordonnateY), new Neighborhood(coordonnateX, coordonnateY), new MetaRule(false, new Neighborhood(coordonnateX, coordonnateY)))
+            : this(false, new Coordonnate(coordonnateX, coordonnateY), new Neighborhood(coordonnateX, coordonnateY), new BasicRules(false, new Neighborhood(coordonnateX, coordonnateY)))
         {
         }
 
         public Cell(bool alive, Coordonnate coordonnate, Neighborhood neighborhoodCells)
-            : this(alive, coordonnate, neighborhoodCells, new MetaRule(alive, neighborhoodCells))
+            : this(alive, coordonnate, neighborhoodCells, new BasicRules(alive, neighborhoodCells))
         {
         }
 
         public Cell(bool alive, Coordonnate coordonnate)
-            : this(alive, coordonnate, new Neighborhood(coordonnate), new MetaRule(alive, new Neighborhood(coordonnate)))
+            : this(alive, coordonnate, new Neighborhood(coordonnate), new BasicRules(alive, new Neighborhood(coordonnate)))
         {
         }
 
@@ -58,11 +57,11 @@ namespace GameOfLife
         }
 
 
-        public Cell Evolve(BoardCells boardCells)
+        public Cell Evolve(BoardCells livingCells)
         {
             return
                 new Cell(
-                    this.rules.IsAlive(boardCells),
+                    this.rules.IsAlive(livingCells),
                     this.coordonnate,
                     this.neighborhoodCells
                 );
