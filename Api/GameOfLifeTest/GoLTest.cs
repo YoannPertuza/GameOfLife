@@ -9,12 +9,11 @@ using MongoDB.Driver.Linq;
 namespace GameOfLifeTest
 {
     [TestClass]
-    public class UnitTest1
+    public class GoLTest
     {
 
-
         [TestMethod]
-        public void BoardGameTest3()
+        public void DefaultEvolution_OneEvolution_With_Flasheur()
         {
             var board =
                 new DefaultEvolution(
@@ -36,7 +35,7 @@ namespace GameOfLifeTest
 
 
         [TestMethod]
-        public void BoardGameTest4()
+        public void DefaultEvolution_Three_Consecutive_Evolutions_With_Square()
         {
             var board =
                 new DefaultEvolution(
@@ -75,7 +74,7 @@ namespace GameOfLifeTest
 
 
         [TestMethod]
-        public void BoardGameTest5()
+        public void EvolutionUntil_Four_Evolutions_With_Flasheur()
         {
             var board =
                 new EvolutionUntil(
@@ -97,7 +96,7 @@ namespace GameOfLifeTest
         }
 
         [TestMethod]
-        public void BoardGameTest6()
+        public void EvolutionUntil_10_Evolutions_With_Planeur()
         {
             var board =
                 new EvolutionUntil(
@@ -119,7 +118,7 @@ namespace GameOfLifeTest
         }
 
         [TestMethod]
-        public void BoardGameTest7()
+        public void EvolutionUntil_10_Evolutions_With_Ligne()
         {
             
             var board =
@@ -142,32 +141,33 @@ namespace GameOfLifeTest
 
             var chose = board.History().Select(game => game.LivingCells());
 
-            Assert.IsTrue(board.History().Count() == 11);
-
-           
+            Assert.IsTrue(board.History().Count() == 11);        
         }
 
         [TestMethod]
-        public void CoordonnateTest()
+        public void ReferenceCoordonnate()
         {
-            var minCoord =
-            new List<Coordonnate>() 
+            var coord =
+                new ReferenceCoordonnate(
+                    new DefaultCoordonnates(new List<Coordonnate>() 
                     { 
                         new Coordonnate(1, 0),
                         new Coordonnate(2, 1),
                         new Coordonnate(2, 2),
                         new Coordonnate(1, 2),
                         new Coordonnate(0, 2),
-                    }.OrderBy(coord => coord, new CoordonnateCompare()).First();
+                    })).Select();
 
 
+            Assert.AreEqual(coord.CoordX(), 1);
+            Assert.AreEqual(coord.CoordY(), 0);
         }
 
         [TestMethod]
-        public void CoordonnateTest2()
+        public void RealCoordonnate()
         {
             var coord = 
-                new FromRelativeCoordonnate(
+                new RealCoordonnate(
                     new Coordonnate(1, 0), 
                     new RelativeCoordonnate(
                         new Coordonnate(1, 0), 
@@ -175,12 +175,11 @@ namespace GameOfLifeTest
                     )
                 ).Select();
 
-
-
             Assert.IsTrue(coord.GetHashCode() == new Coordonnate(2, 1).GetHashCode());
         }
 
         [TestMethod]
+        [Ignore]
         public void TestMongoDb()
         {
             var client = new MongoDB.Driver.MongoClient("mongodb://yoann:Monaco58898@gameoflife-shard-00-00-iohzq.mongodb.net:27017,gameoflife-shard-00-01-iohzq.mongodb.net:27017,gameoflife-shard-00-02-iohzq.mongodb.net:27017/admin?replicaSet=GameOfLife-shard-0&ssl=true");
@@ -199,36 +198,7 @@ namespace GameOfLifeTest
         public class Test
         {
             public string test { get; set; }
-
         }
-
-        [TestMethod]
-        public void BinaryTreeTest()
-        {
-            var node =
-                new TwoBranchNode(
-                    10,
-                    new TwoBranchNode(
-                        9,
-                        new TwoBranchNode(
-                            8,
-                            new NullNode(),
-                            new NullNode()
-                        ),
-                        new NullNode()
-                    ),
-                    new TwoBranchNode(
-                        12,
-                        new TwoBranchNode(
-                            11,
-                            new NullNode(),
-                            new NullNode()
-                        ),
-                        new NullNode()
-                    )
-                ).Node(13);
-        }
-
 
     }
 }

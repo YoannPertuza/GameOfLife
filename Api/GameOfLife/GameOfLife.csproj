@@ -43,18 +43,48 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinaryTree.cs" />
-    <Compile Include="BoardCells.cs" />
-    <Compile Include="CellFactory.cs" />
-    <Compile Include="Cell.cs" />
-    <Compile Include="Game.cs" />
-    <Compile Include="Coordonnates.cs" />
-    <Compile Include="Rule.cs" />
+    <Compile Include="Board\BoardCoordonnates.cs" />
+    <Compile Include="Board\CellsToCoordonnates.cs" />
+    <Compile Include="Board\DeadNeighborhood.cs" />
+    <Compile Include="Board\DefaultCoordonnates.cs" />
+    <Compile Include="Board\Distinct.cs" />
+    <Compile Include="Board\Neighborhood.cs" />
+    <Compile Include="Cell\Rules\BasicBecomeAlive.cs" />
+    <Compile Include="Cell\Rules\BasicRules.cs" />
+    <Compile Include="Cell\Rules\BasicStayAlive.cs" />
+    <Compile Include="Cell\BoardCells.cs" />
+    <Compile Include="Cell\CacheCells.cs" />
+    <Compile Include="Cell\CellFactory.cs" />
+    <Compile Include="Cell\Cell.cs" />
+    <Compile Include="Board\Coord\Coordonnate.cs" />
+    <Compile Include="Board\CoordonnateCompare.cs" />
+    <Compile Include="Board\CoordonnateComparer.cs" />
+    <Compile Include="Board\Coord\CoordonnatesOperation.cs" />
+    <Compile Include="Board\CoordonnatesToCells.cs" />
+    <Compile Include="Cell\DeadCells.cs" />
+    <Compile Include="Cell\DefaultCells.cs" />
+    <Compile Include="Cell\SimpleCell.cs" />
+    <Compile Include="Game\DefaultEvolution.cs" />
+    <Compile Include="Cell\EngagedCells.cs" />
+    <Compile Include="Game\EvolutionUntil.cs" />
+    <Compile Include="Cell\EvolvedCells.cs" />
+    <Compile Include="Game\IEvolutionGame.cs" />
+    <Compile Include="Cell\LivingCells.cs" />
+    <Compile Include="Cell\MatchingCells.cs" />
+    <Compile Include="Cell\MatchingCellsFactory.cs" />
+    <Compile Include="Board\NoMatchingCoordonnates.cs" />
+    <Compile Include="Board\Coord\RealCoordonnate.cs" />
+    <Compile Include="Board\Coord\ReferenceCoordonnate.cs" />
+    <Compile Include="Board\Coord\RelativeCoordonnate.cs" />
+    <Compile Include="Board\Coord\RelativeCoordonnates.cs" />
+    <Compile Include="Cell\Rules\Rule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Cell\SimpleBoard.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

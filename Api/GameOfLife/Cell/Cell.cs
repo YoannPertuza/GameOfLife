@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace GameOfLife
 {
+   
     public class Cell
     {
-        public Cell(bool alive, int coordonnateX, int coordonnateY, Neighborhood neighborhoodCells)
-            : this(alive, new Coordonnate(coordonnateX, coordonnateY), neighborhoodCells, new BasicRules(alive, neighborhoodCells))
+        public Cell(bool alive, int coordonnateX, int coordonnateY, BoardCoordonnates neighborhoodCoords)
+            : this(alive, new Coordonnate(coordonnateX, coordonnateY), neighborhoodCoords, new BasicRules(alive, neighborhoodCoords))
         {
         }
 
@@ -18,8 +19,8 @@ namespace GameOfLife
         {
         }
 
-        public Cell(bool alive, Coordonnate coordonnate, Neighborhood neighborhoodCells)
-            : this(alive, coordonnate, neighborhoodCells, new BasicRules(alive, neighborhoodCells))
+        public Cell(bool alive, Coordonnate coordonnate, BoardCoordonnates neighborhoodCoords)
+            : this(alive, coordonnate, neighborhoodCoords, new BasicRules(alive, neighborhoodCoords))
         {
         }
 
@@ -28,16 +29,16 @@ namespace GameOfLife
         {
         }
 
-        public Cell(bool alive, Coordonnate coordonnate, Neighborhood neighborhoodCells, Rule rules)
+        public Cell(bool alive, Coordonnate coordonnate, BoardCoordonnates neighborhoodCoords, Rule rules)
         {
             this.coordonnate = coordonnate;
-            this.neighborhoodCells = neighborhoodCells;
+            this.neighborhoodCoords = neighborhoodCoords;
             this.alive = alive;
             this.rules = rules;
         }
 
         private Coordonnate coordonnate;
-        private Neighborhood neighborhoodCells;
+        private BoardCoordonnates neighborhoodCoords;
         private bool alive;
         private Rule rules;
 
@@ -52,7 +53,7 @@ namespace GameOfLife
                 new Cell(
                     true,
                     this.coordonnate,
-                    this.neighborhoodCells
+                    this.neighborhoodCoords
                 );
         }
 
@@ -63,7 +64,7 @@ namespace GameOfLife
                 new Cell(
                     this.rules.IsAlive(livingCells),
                     this.coordonnate,
-                    this.neighborhoodCells
+                    this.neighborhoodCoords
                 );
         }
 
@@ -84,7 +85,11 @@ namespace GameOfLife
 
         public IEnumerable<Coordonnate> DeadNeighborhood(BoardCells livingCells)
         {
-            return neighborhoodCells.Coordonnates().Where(nbCoord => !livingCells.Cells().Any(cell => cell.Matche(nbCoord)));
+            return
+                new NoMatchingCoordonnates(
+                    this.neighborhoodCoords,
+                    livingCells
+                ).Coordonnates();
         }
     }
 }

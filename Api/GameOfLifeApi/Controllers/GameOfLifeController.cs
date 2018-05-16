@@ -125,7 +125,7 @@ namespace GameOfLifeApi.Controllers
         {          
             var dtos =
                 new DTOArrayRelativeCoordonnate(
-                    new InRelativeCoordonnates(
+                    new RelativeCoordonnates(
                         new DefaultCoordonnates(
                             templateRequest.coordsFigure.Select(cell => new Coordonnate(cell.coordX, cell.coordY))
                         )
