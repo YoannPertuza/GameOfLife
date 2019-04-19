@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using System.Text;
 
 namespace GameOfLifeTest
 {
@@ -179,9 +180,9 @@ namespace GameOfLifeTest
         }
 
         [TestMethod]
-        [Ignore]
         public void TestMongoDb()
         {
+            /*
             var client = new MongoDB.Driver.MongoClient("mongodb://yoann:Monaco58898@gameoflife-shard-00-00-iohzq.mongodb.net:27017,gameoflife-shard-00-01-iohzq.mongodb.net:27017,gameoflife-shard-00-02-iohzq.mongodb.net:27017/admin?replicaSet=GameOfLife-shard-0&ssl=true");
 
             var database = client.GetDatabase("gameOfLife");
@@ -190,15 +191,38 @@ namespace GameOfLifeTest
 
             var test2 = new Test() { test = "test2" };
 
-            collection.InsertOne(test2);
+            collection.InsertOne(test2);*/
 
+            Assert.AreEqual(null, FirstUniqueName(new string[] { "Abbi", "Abbi"}));
 
+ 
         }
 
         public class Test
         {
             public string test { get; set; }
         }
+
+
+        public static string FirstUniqueName(string[] names)
+        {
+            var hash = new Dictionary<string, int>();
+            foreach (var name in names)
+            {
+                if (hash.ContainsKey(name))
+                {
+                    hash[name] += 1;
+                }
+                else
+                {
+                    hash.Add(name, 0);
+                }
+            }
+
+            return hash.FirstOrDefault(k => k.Value == 0).Key;
+        }
+
+       
 
     }
 }

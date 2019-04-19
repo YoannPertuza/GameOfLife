@@ -29,10 +29,13 @@ namespace GameOfLife
             return this.y;
         }
 
-
+        /**
+         * Bijective algorithm
+         */
         public override int GetHashCode()
         {
-            return this.x * 10 + this.y + this.y * 10 + this.x; 
+            int tmp = (y + ((x + 1) / 2));
+            return x + (tmp * tmp);
         }
     }
 
